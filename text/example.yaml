@@ -1,0 +1,10 @@
+text:
+  - name: luis
+    id: 1
+    groups: [ 2 ]
+    - text: "calcio bailado"
+      id: 1
+
+  - name: group1
+    id: 2
+    - text: "This is a text from the group"
