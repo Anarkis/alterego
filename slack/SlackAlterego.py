@@ -16,7 +16,7 @@ class SlackAlterego:
         """
         params = {"token": self.token, "pretty": 1}
         r = requests.get("https://slack.com/api/users.list", params=params)
-        return jq('.members[] | {id: .id, name: .real_name}').transform(r.json(), multiple_output=True)
+        return jq('.members[] | select (.deleted==false) | {id: .id, name: .name}').transform(r.json(), multiple_output=True)
 
     def get_userchannel(self, users):
         """
@@ -27,7 +27,7 @@ class SlackAlterego:
         for user in users:
             user_id = jq(".id").transform(user)
             answer = self.sc.api_call("im.open", user=user_id)
-            user['channel'] = jq(".channel.id").transform(answer)
+            user['channel'] = jq('.channel.id').transform(answer)
         return users
 
     def send_message(self, channel, text):
