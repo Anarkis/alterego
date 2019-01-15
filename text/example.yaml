@@ -1,10 +1,25 @@
 text:
-  - name: luis
+  - name: missedonuts
+    kind: user
     id: 1
     groups: [ 2 ]
-    - text: "calcio bailado"
-      id: 1
+    text:
+      - sentence: "calcio bailado"
+        id: 1
+      - sentence: "that is working"
+        id: 2
 
   - name: group1
+    kind: group
     id: 2
-    - text: "This is a text from the group"
+    text:
+      - sentence: "This is a text from the group 1"
+        id: 3
+      - sentence: "This is another text from the group 1"
+        id: 4
+
+  - name: group2
+    kind: group
+    id: 3
+    text:
+      - sentence: "This is a text from the group 2"
