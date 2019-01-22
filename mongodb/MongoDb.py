@@ -10,7 +10,16 @@ class MongoDb:
         self.client = MongoClient(self.host, self.port)
         self.db = self.client.db
 
-    def insert(self, collection, data):
+    def insert_one(self, collection, data):
+        """
+        Insert method in Mongodb
+        :param collection: collection where will be inserted
+        :param data: data to be inserted
+        :return:
+        """
+        self.db[collection].insert_one(data)
+
+    def insert_many(self, collection, data):
         """
         Insert method in Mongodb
         :param collection: collection where will be inserted
@@ -37,7 +46,10 @@ class MongoDb:
         :param username: username to get the info
         :return: the first hit in the db
         """
-        return list(self.db.slack.find({"name": username}, {"channel": 1}).limit(1))[0]
+        return self.db.slack.find_one({"name": username}, {"channel": 1})
+
+    def get_users_info(self):
+        return list(self.db.text.find({"type": "user"}, {"name": 1, "groups": 1, "_id": 0}))
 
     def get_texts_user(self, username):
         """
@@ -45,7 +57,7 @@ class MongoDb:
         :param username: user to get the texts
         :return: the texts
         """
-        return list(self.db.text.find({"name": username, "kind": "user"}, {"text": 1, "_id": 0}))
+        return list(self.db.text.find({"name": username, "type": "user"}, {"text": 1, "_id": 0}))
 
     def get_texts_group(self, group_id):
         """
@@ -53,4 +65,11 @@ class MongoDb:
         :param group_id: group which we will query
         :return: all the text relates to the group
         """
-        return list(self.db.text.find({"kind": "group", "id": group_id}, {"text": 1, "_id": 0}))
+        text = []
+        for group in group_id:
+            text.extend(self.db.text.find({"type": "group", "id": group}, {"text": 1, "sentence": 1, "_id": 0}))
+        return list(text)
+        # return list(self.db.text.find({"kind": "group", "id": group_id}, {"text": 1, "_id": 0}))
+
+    def find_one_and_delete(self,username):
+        return self.db.final_text.findOneAndDelete({"user": username}, {"text":1, "_id":0})
