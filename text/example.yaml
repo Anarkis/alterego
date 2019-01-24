@@ -1,0 +1,22 @@
+text:
+  - name: missedonuts
+    type: user
+    groups:
+      - 2
+      - 5
+    text:
+      - "calcio bailado"
+      - "that is working"
+
+  - name: group1
+    type: group
+    id: 2
+    text:
+      - "This is a text from the group 1"
+      - "This is another text from the group 1"
+
+  - name: group2
+    type: group
+    id: 3
+    text:
+      - "This is a text from the group 2"
