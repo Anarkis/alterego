@@ -3,6 +3,7 @@ import requests
 from slackclient import SlackClient
 from jq import jq
 
+
 class SlackAlterego:
 
     def __init__(self):
@@ -16,7 +17,8 @@ class SlackAlterego:
         """
         params = {"token": self.token, "pretty": 1}
         r = requests.get("https://slack.com/api/users.list", params=params)
-        return jq('.members[] | select (.deleted==false) | {id: .id, name: .name}').transform(r.json(), multiple_output=True)
+        return jq('.members[] | select (.deleted==false) | {id: .id, name: .name}').transform(r.json(),
+                                                                                              multiple_output=True)
 
     def get_userchannel(self, users):
         """
@@ -35,7 +37,7 @@ class SlackAlterego:
         Method to send a text into a channel
         :param channel: channel where is going to be send the message
         :param text: will be the content of the message
-        :return:
+        :return: the answer from the api
         """
         self.sc.api_call(
             "chat.postMessage",
@@ -44,3 +46,22 @@ class SlackAlterego:
             as_user="true",
             user="bot"
         )
+
+    def get_last_message(self, channel):
+        """
+        Method to get the info from the last message
+        :param channel: channel to look
+        :return: the duple user,ts related to the last message
+        """
+        info = self.sc.api_call("conversations.info", channel=channel)
+        return jq('.channel.latest| {user: .user, ts: .ts}').transform(info)
+
+    def add_reaction(self, channel, reaction):
+        """
+        Add a reaction to the last message
+        :param channel: channel where it will add the reaction
+        :param reaction: kind of reaction
+        :return: the answer from the api
+        """
+        last_message = self.get_last_message(channel)
+        self.sc.api_call("reactions.add", channel=channel, name=reaction, ts=last_message['ts'])
