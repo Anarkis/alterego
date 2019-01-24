@@ -28,6 +28,11 @@ class MongoDb:
         """
         self.db[collection].insert_many(data)
 
+    def is_empty(self, collection):
+        if self.db[collection].count() > 0:
+            return False
+        return True
+
     def is_collection(self, collection):
         """
         check if the slack collection is present in
@@ -48,7 +53,11 @@ class MongoDb:
         """
         return self.db.slack.find_one({"name": username}, {"channel": 1})
 
-    def get_users_info(self):
+    def get_users(self):
+        """
+        get all the duple name, group from all the users
+        :return: a list
+        """
         return list(self.db.text.find({"type": "user"}, {"name": 1, "groups": 1, "_id": 0}))
 
     def get_texts_user(self, username):
@@ -69,7 +78,19 @@ class MongoDb:
         for group in group_id:
             text.extend(self.db.text.find({"type": "group", "id": group}, {"text": 1, "sentence": 1, "_id": 0}))
         return list(text)
-        # return list(self.db.text.find({"kind": "group", "id": group_id}, {"text": 1, "_id": 0}))
 
-    def find_one_and_delete(self,username):
-        return self.db.final_text.findOneAndDelete({"user": username}, {"text":1, "_id":0})
+    def find_one_and_delete(self, username):
+        """
+        find one text related to a given user, and delete from the db
+        :param username: to pick up the text
+        :return: the text from the user
+        """
+        return self.db.final_text.find_one_and_delete({"user": username}, {"text":1, "_id":0})
+
+    def find_one(self, username):
+        """
+        find one text related to a given user
+        :param username: to pick up the text
+        :return: the text from the user
+        """
+        return self.db.final_text.find_one({"user": username}, {"text":1, "_id":0})
