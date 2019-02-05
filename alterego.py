@@ -54,7 +54,7 @@ def play():
             if sentence != "null":
                 print("sending")
                 channel = mongo.get_channel(user['name'])['channel']
-                slack.add_reaction(channel, "poop")
+                slack.add_reaction(channel)
                 slack.send_message(channel, sentence['text'])
 
 
