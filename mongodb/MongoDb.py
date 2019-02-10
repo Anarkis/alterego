@@ -7,8 +7,14 @@ class MongoDb:
     def __init__(self):
         self.host = os.environ['MONGODB_SERVICE_HOST']
         self.port = int(os.environ['MONGODB_SERVICE_PORT_MONGODB'])
-        self.client = MongoClient(self.host, self.port)
-        self.db = self.client.db
+        self.pwd = os.environ['MONGODB_PASSWORD']
+        self.database = os.environ['MONGODB_DATABASE']
+        self.user = os.environ['MONGODB_USERNAME']
+
+        self.client = MongoClient(self.host, username=self.user, password=self.pwd, authSource=self.database,
+                                  authMechanism='SCRAM-SHA-256')
+
+        self.db = self.client[self.database]
 
     def insert_one(self, collection, data):
         """
@@ -85,7 +91,7 @@ class MongoDb:
         :param username: to pick up the text
         :return: the text from the user
         """
-        return self.db.final_text.find_one_and_delete({"user": username}, {"text":1, "_id":0})
+        return self.db.final_text.find_one_and_delete({"user": username}, {"text": 1, "_id": 0})
 
     def find_one(self, username):
         """
@@ -93,4 +99,4 @@ class MongoDb:
         :param username: to pick up the text
         :return: the text from the user
         """
-        return self.db.final_text.find_one({"user": username}, {"text":1, "_id":0})
+        return self.db.final_text.find_one({"user": username}, {"text": 1, "_id": 0})
