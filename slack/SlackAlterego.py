@@ -2,7 +2,8 @@ import os
 import requests
 from slackclient import SlackClient
 from jq import jq
-
+import random
+import time
 
 class SlackAlterego:
 
@@ -20,16 +21,18 @@ class SlackAlterego:
         return jq('.members[] | select (.deleted==false) | {id: .id, name: .name}').transform(r.json(),
                                                                                               multiple_output=True)
 
-    def get_userchannel(self, users):
+    def get_userchannel(self, users, filter_user):
         """
         Get the channel for all the users
         :param users: list of dictionaries {id: X, name: X}
+        :param filter_user: arry of user which we will get the channel
         :return: a modified list of dictionaries with the channel {id: X, name: X, channel: X}
         """
         for user in users:
-            user_id = jq(".id").transform(user)
-            answer = self.sc.api_call("im.open", user=user_id)
-            user['channel'] = jq('.channel.id').transform(answer)
+            if user['name'] in filter_user:
+                user_id = jq(".id").transform(user)
+                answer = self.sc.api_call("im.open", user=user_id)
+                user['channel'] = jq('.channel.id').transform(answer)
         return users
 
     def send_message(self, channel, text):
@@ -54,9 +57,9 @@ class SlackAlterego:
         :return: the duple user,ts related to the last message
         """
         info = self.sc.api_call("conversations.info", channel=channel)
-        return jq('.channel.latest| {user: .user, ts: .ts}').transform(info)
+        return jq('.channel | { user: .user, latest_user: .latest.user, ts: .latest.ts}').transform(info)
 
-    def add_reaction(self, channel, reaction):
+    def submit_reaction(self, channel, reaction):
         """
         Add a reaction to the last message
         :param channel: channel where it will add the reaction
@@ -64,4 +67,10 @@ class SlackAlterego:
         :return: the answer from the api
         """
         last_message = self.get_last_message(channel)
-        self.sc.api_call("reactions.add", channel=channel, name=reaction, ts=last_message['ts'])
+        if last_message['user'] == last_message['latest_user']:
+            self.sc.api_call("reactions.add", channel=channel, name=reaction, timestamp=last_message['ts'])
+
+    def add_reaction(self, channel):
+        reactions = ["poop", "bomb", "skull", "baby", "kiss", "thumbsdown", "middle_finger"]
+        number = random.randint(0, len(reactions)-1)
+        self.submit_reaction(channel, reactions[number])
