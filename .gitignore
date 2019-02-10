@@ -1,3 +1,4 @@
 /text/text.yaml
 .idea/*
 *__pycache__
+**/.DS_Store
