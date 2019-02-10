@@ -3,7 +3,6 @@ import requests
 from slackclient import SlackClient
 from jq import jq
 import random
-import time
 
 class SlackAlterego:
 
