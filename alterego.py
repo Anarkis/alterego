@@ -8,14 +8,6 @@ import random
 def setup():
     collection = ["slack", "text", "final_text"]
 
-    if not mongo.is_collection(collection[0]) or mongo.is_empty(collection[0]):
-        user_list = slack.get_userlist()
-        data = slack.get_userchannel(user_list)
-        mongo.insert_many(collection[0], data)
-        print("Slack data stored in mongodb")
-    else:
-        print("Slack data already present in mongodb")
-
     if not mongo.is_collection(collection[1]) or mongo.is_empty(collection[1]):
         with open('text/example.yaml', 'r') as file:
             text = yaml.safe_load(file)['text']
@@ -23,6 +15,19 @@ def setup():
         print("Text data stored in mongodb")
     else:
         print("Text data already present in mongodb")
+
+    if not mongo.is_collection(collection[0]) or mongo.is_empty(collection[0]):
+        users_selected = []
+        for user in mongo.get_users():
+            users_selected.append(user['name'])
+
+        user_list = slack.get_userlist()
+        data = slack.get_userchannel(user_list, users_selected)
+        mongo.insert_many(collection[0], data)
+        print("Slack data stored in mongodb")
+
+    else:
+        print("Slack data already present in mongodb")
 
     if not mongo.is_collection(collection[2]) or mongo.is_empty(collection[2]):
         users = mongo.get_users()
@@ -41,7 +46,6 @@ def setup():
 
 
 def play():
-
     users = mongo.get_users()
 
     for user in users:
