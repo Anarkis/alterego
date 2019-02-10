@@ -1,18 +1,13 @@
-FROM alpine:3.8
-
-WORKDIR /app
-COPY . /app
-
-RUN apk add python3 && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-rm -r /root/.cache
+FROM python:3.6-alpine
 
 RUN apk add gcc make musl-dev automake autoconf python3-dev libtool
 
-RUN pip3 install -r requeriments.txt
+WORKDIR /app
+COPY alterego /app/alterego
+COPY requeriments.txt /app/requeriments.txt
+COPY entrypoint.sh /app/entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+
+RUN python -m pip install -r requeriments.txt
+
+CMD ["python alterego/main.py"]
