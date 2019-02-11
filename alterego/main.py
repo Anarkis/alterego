@@ -10,7 +10,7 @@ def setup():
     collection = ["slack", "text", "final_text"]
 
     if not mongo.is_collection(collection[1]) or mongo.is_empty(collection[1]):
-        with open('text/example.yaml', 'r') as file:
+        with open('alterego/text/example.yaml', 'r') as file:
             text = yaml.safe_load(file)['text']
         mongo.insert_many(collection[1], text)
         logger.info('Text data stored in mongodb')
@@ -34,8 +34,9 @@ def setup():
         users = mongo.get_users()
         for user in users:
             user_texts = mongo.get_texts_user(user['name'])
-            group_texts = mongo.get_texts_group(user['groups'])
-            user_texts.extend(group_texts)
+            if bool(user.get('groups', {})):
+                group_texts = mongo.get_texts_group(user['groups'])
+                user_texts.extend(group_texts)
 
             for element in user_texts:
                 for text in element['text']:
