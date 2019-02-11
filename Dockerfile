@@ -10,4 +10,4 @@ COPY entrypoint.sh /app/entrypoint.sh
 
 RUN python -m pip install -r requeriments.txt
 
-CMD ["python alterego/main.py"]
+CMD ["python", "alterego/main.py"]
