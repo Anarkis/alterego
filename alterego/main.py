@@ -10,7 +10,7 @@ def setup():
     collection = ["slack", "text", "final_text"]
 
     if not mongo.is_collection(collection[1]) or mongo.is_empty(collection[1]):
-        with open('alterego/text/example.yaml', 'r') as file:
+        with open('alterego/text/text.yaml', 'r') as file:
             text = yaml.safe_load(file)['text']
         mongo.insert_many(collection[1], text)
         logger.info('Text data stored in mongodb')
@@ -51,11 +51,11 @@ def play():
     users = mongo.get_users()
 
     for user in users:
-        secs = random.randint(1, 20)
+        secs = random.randint(1, 60)
         logger.info("Waiting %s ", secs)
         time.sleep(secs)
 
-        if secs < 15:
+        if secs < 50:
             sentence = mongo.find_one_and_delete(user['name'])
             if sentence is not None:
                 logger.info("message %s", sentence)
@@ -70,7 +70,6 @@ def play():
             logger.info("Skipping to %s", user['name'])
 
 
-#if __name__ == '__main__':
 slack = SlackAlterego()
 mongo = MongoDb()
 
